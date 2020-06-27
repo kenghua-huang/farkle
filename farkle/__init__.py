@@ -3,7 +3,4 @@
 __version__ = "0.1.0"
 __author__ = "Spencer Lyon <spencerlyon2@gmail.com>"
 
-from .gameplay import (
-    Action, State, Farkle, RandomFarklePlayer, HumanFarklePlayer, Dice
-)
-
+from .gameplay import Action, State, Farkle, RandomFarklePlayer, HumanFarklePlayer, Dice

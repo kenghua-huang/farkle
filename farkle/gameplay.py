@@ -167,17 +167,15 @@ class State:
             # can pick them all up!
             out.can_roll = 6
 
-        # update dice that are set aside
-        used_dice = []
+        # Remove the played dice from `rolled_dice`
         for k, v in action.used.items():
             for _ in range(v):
-                used_dice.append(Dice(k))
                 out.rolled_dice.remove(Dice(k))
 
         return out
 
     def enumerate_options(
-            self, rolled_dice: Optional[List[Dice]] = None
+        self, rolled_dice: Optional[List[Dice]] = None
     ) -> List[Action]:
         """
         Given a list of dice, it computes all of the possible ways
@@ -305,10 +303,7 @@ class Farkle(object):
     def __init__(self, players, points_to_win=10_000, verbose: bool = False):
         self.points_to_win = points_to_win
         self.players = players
-        self._have_human = any(map(
-            lambda x: isinstance(x, HumanFarklePlayer),
-            players
-        ))
+        self._have_human = any(map(lambda x: isinstance(x, HumanFarklePlayer), players))
         self.verbose = verbose or self._have_human
         self.n_players = len(players)
         self._state = State(self.n_players)
@@ -377,10 +372,7 @@ class Farkle(object):
         """Play a game of Farkle"""
         while True:
             # check end_game
-            winners = {
-                k: v >= self.points_to_win
-                for k, v in self.state.scores.items()
-            }
+            winners = {k: v >= self.points_to_win for k, v in self.state.scores.items()}
 
             if any(winners.values()):
                 print("Game over! Final score is:")
