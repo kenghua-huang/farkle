@@ -110,6 +110,9 @@ class State:
         for (k, v) in val.items():
             setattr(self, k, copy.deepcopy(v))
 
+    def __repr__(self):
+        return f"Round: {self.current_round}. Score: {self.scores}"
+
     def __copy__(self) -> "State":
         out = State(self._n_players)
         out.__dict__ = self.__dict__
@@ -175,7 +178,7 @@ class State:
         return out
 
     def enumerate_options(
-        self, rolled_dice: Optional[List[Dice]] = None
+            self, rolled_dice: Optional[List[Dice]] = None
     ) -> List[Action]:
         """
         Given a list of dice, it computes all of the possible ways
@@ -346,6 +349,10 @@ class Farkle(object):
 
         if choices is None:
             choices = self.state.enumerate_options()
+        if len(choices) == 0:
+            # bankrupt... bummer
+            self.step(Action({}, "bankrupt", 0))
+            return
         action = current_player.act(self.state, choices)
         self.step(action)
 
@@ -375,8 +382,9 @@ class Farkle(object):
             winners = {k: v >= self.points_to_win for k, v in self.state.scores.items()}
 
             if any(winners.values()):
-                print("Game over! Final score is:")
-                self._print_score()
+                if self.verbose:
+                    print("Game over! Final score is:")
+                    self._print_score()
                 return winners
 
             # otherwise the game is on!
@@ -395,8 +403,9 @@ class Farkle(object):
 
 
 if __name__ == "__main__":
-    p1 = HumanFarklePlayer("Spencer")
+    # p1 = HumanFarklePlayer("Spencer")
     # p2 = HumanFarklePlayer("Chase")
+    p1 = RandomFarklePlayer()
     p2 = RandomFarklePlayer()
     f = Farkle([p1, p2])
     f.play()
