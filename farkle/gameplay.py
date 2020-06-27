@@ -77,7 +77,6 @@ class State:
     # public game state
     current_round: int
     scores: Dict[int, int]
-    set_aside: List[Dice]
     can_roll: int
     rolled_dice: List[Dice]
     turn_sum: int
@@ -89,7 +88,6 @@ class State:
         self._n_players = n_players
         self.current_round = 0
         self.scores = {i: 0 for i in range(self._n_players)}
-        self.set_aside = []
         self.can_roll = 6
         self.rolled_dice = []
         self.turn_sum = 0
@@ -98,7 +96,6 @@ class State:
         return [
             "current_round",
             "scores",
-            "set_aside",
             "can_roll",
             "rolled_dice",
             "turn_sum",
@@ -143,7 +140,7 @@ class State:
 
         out = State(self._n_players)
         out.current_round = self.current_round + 1
-        out.scores = self.scores
+        out.scores = copy.deepcopy(self.scores)
 
         if not forced:
             out.scores[self.current_player] += self.turn_sum
@@ -177,7 +174,6 @@ class State:
                 used_dice.append(Dice(k))
                 out.rolled_dice.remove(Dice(k))
 
-        out.set_aside = self.set_aside + used_dice
         return out
 
     def enumerate_options(
@@ -246,7 +242,9 @@ class State:
                 Action({i: 1 for i in range(1, 7)}, "1-2-3-4-5-6", 3000)
             )
 
-        if len(opportunities) == 0 and len(self.set_aside) > 0:
+        # can_roll is zero iff I just rolled. If there are no opportunities, we
+        # must be bankrupt for this round
+        if len(opportunities) == 0 and self.can_roll == 0:
             # oops
             return []
 
